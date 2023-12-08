@@ -10,6 +10,7 @@ export default function Tile(props){
     const pieces = useSelector((state) => state.piece_board);
     const moves = useSelector((state) => state.move_board);
     let coords = useSelector((state) => state.coords);
+    let turn = useSelector((state) => state.turn);
     let t = (pieces[x][y].toUpperCase() === pieces[x][y]) ? '_'  : "";
     let path = pieces[x][y] != ' ' ? './pieces\/' + pieces[x][y].toUpperCase() + t + '.png' : "";
 
@@ -17,6 +18,7 @@ export default function Tile(props){
         width: '100px', // You can change this value to set the size of the square
         height: '100px', // Should be the same as the width to make it a square
         backgroundColor: (x%2 + y)%2 ? 'white' : '#0a571f', // You can change the background color
+        position: 'relative'
     };
 
     const handleClick = (event) => {
@@ -24,6 +26,15 @@ export default function Tile(props){
     };
 
     return(<div style = {sqstyle} onClick = {handleClick}>
-        {path ? <img src={require(`${path}`)}/> : null}
+        {moves[x][y] != ' ' ? <img
+            src={require('./pieces/gd.png')} // Adjust the image path as needed
+            style={{width : '100px', height : '100px', position: 'absolute', left: 0, top: 0, position : 'absolute',opacity: .25}}
+        /> : null}
+        {path ? (
+            <img
+                style={{ position: 'absolute', left: 0, top: 0}}
+                src={require(`${path}`)} // Adjust the image path as needed
+            />
+        ) : null}
     </div>)
 }

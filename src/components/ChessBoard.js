@@ -1,8 +1,8 @@
 import React, { useEffect,useState} from 'react';
-import Tile from './Tile.js';
+import Tile from './tile.js';
 import { configureStore } from '@reduxjs/toolkit';
-import boardReducer, { movePiece } from './boardReducer';
-import { useDispatch ,useSelector} from 'react-redux';
+import boardReducer, { movePiece , viewMove } from './boardReducer';
+import { useDispatch , useSelector} from 'react-redux';
 
 export default function ChessBoard(){
     
@@ -12,6 +12,10 @@ export default function ChessBoard(){
     let coords = useSelector((state) => state.coords);
 
     useEffect(() => {
+        if(coords.length == 1){
+            console.log("viewing move")
+            dispatch(viewMove());
+        }
         if(coords.length == 2){
             dispatch(movePiece(coords));
         }
