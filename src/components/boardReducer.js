@@ -38,9 +38,15 @@ function initialize(){
 }
 
 function isUpper(letter){
-    if(letter == ' ')
+    if(letter === ' ')
         return 'z';
-    return letter.toLowerCase() == letter ? 'b' : 'w';
+    return letter.toLowerCase() === letter ? 'b' : 'w';
+}
+
+function pawnTake(x,y,x1,y1,color,colorD,state){
+    if(y === y1)
+        return state.piece_board[x1][y1] === ' '
+    return color !== colorD && state.piece_board[x1][y1] !== ' ';
 }
 
 const boardSlice =  createSlice({
@@ -53,7 +59,7 @@ const boardSlice =  createSlice({
             const y = action.payload[0][1];
             const xt = action.payload[1][0];
             const yt = action.payload[1][1];
-            let invalid = (state.piece_board[x][y] == ' ' || (x == xt && y == yt) || state.move_board[xt][yt] == ' ')
+            let invalid = (state.piece_board[x][y] === ' ' || (x === xt && y === yt) || state.move_board[xt][yt] === ' ')
             state.coords = [];
             for(let i = 0;i<8;i++){
                 for(let j = 0;j<8;j++)
@@ -71,13 +77,14 @@ const boardSlice =  createSlice({
         viewMove: (state) => {
             let x = state.coords[0][0];
             let y = state.coords[0][1];
-            if(state.piece_board[x][y] == ' '){
+            if(state.piece_board[x][y] === ' '){
                 state.coords = [];
                 return;
             }
             let piece = state.piece_board[x][y];
             let color = isUpper(piece);
-            let arr = pieceTypes[(piece.toLowerCase() == 'p' ? color : "")+piece.toLowerCase() +"dirs"]
+            let arr = pieceTypes[(piece.toLowerCase() === 'p' ? color : "")+piece.toLowerCase() +"dirs"]
+            piece = piece.toLowerCase()
             let depth = arr[0][0];
             let valid = false;
             for(let i = 1;i<arr.length;i++){
@@ -91,11 +98,15 @@ const boardSlice =  createSlice({
                     let colorD = isUpper(state.piece_board[x1][y1]);
                     a = x1;
                     b = y1;
-                    if(colorD != color){
+                    pawnTake(x,y,x1,y1,color,colorD,state)
+                    if(state.piece_board[x1][y1] !== 'k' && (
+                        (colorD !== color && piece !== 'p') || 
+                        (piece === 'p' && pawnTake(x,y,x1,y1,color,colorD,state))
+                    )){
                         state.move_board[x1][y1] = '.';
                         valid = true;
                     }
-                    if(state.piece_board[x1][y1] != ' ')
+                    if(state.piece_board[x1][y1] !== ' ')
                         break;
                 }
             }
