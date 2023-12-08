@@ -19,10 +19,14 @@ const pieceTypes = {
 function initialize(){
     let piecetemp = [];
     let movetemp = [];
+    let moved = [];
     for(let i = 0;i<8;i++){
         let order = Array.from(blank);
-        if(i === 1 || i === 6)
+        let mt = new Array(8).fill(0);
+        if(i === 1 || i === 6){
             order = Array.from(intial_pawns);
+            mt = new Array(8).fill(1);
+        }
         if(i === 0 || i === 7)
             order = Array.from(intial_majors);
         if(i === 7 || i === 6){
@@ -32,9 +36,10 @@ function initialize(){
         }
         piecetemp.push(order);
         movetemp.push(blank);
+        moved.push(mt);
     }
     console.log(piecetemp,"order")
-    return {piece_board : piecetemp, move_board : movetemp,coords : [], turn : 1}
+    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 1}
 }
 
 function isUpper(letter){
@@ -108,6 +113,12 @@ const boardSlice =  createSlice({
                     }
                     if(state.piece_board[x1][y1] !== ' ')
                         break;
+                }
+            }
+            if(state.moved[x][y] && piece === 'p'){
+                let add = arr[3][0]*2;
+                if(add + x >= 0 && x + add < 8){
+                    state.move_board[x+add][y] = state.move_board[x+add][y] == ' ' ? '.' : ' ';
                 }
             }
             if(!valid)
