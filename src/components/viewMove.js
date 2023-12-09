@@ -24,7 +24,7 @@ function isUpper(letter){
 
 function dfs(x,y,arr,piece,color,board){
     let depth = arr[0][0];
-    for(let i = 1;i<arr.length;i++){
+    for(let i = 1;i<arr.length - (piece === 'p');i++){
         let a = x;
         let b = y;
         for(let j = 0;j<depth;j++){
@@ -48,7 +48,8 @@ function dfs(x,y,arr,piece,color,board){
 
 function isAttacked(x,y,color,board){
     //check if a coord of a certain color is attacked on a given board
-    return dfs(x,y,pieceTypes.ndirs,'n',color,board) || dfs(x,y,pieceTypes.rdirs,'r',color,board) || dfs(x,y,pieceTypes.bdirs,'b',color,board)
+    let arr = pieceTypes[color + 'p' + "dirs"];
+    return dfs(x,y,pieceTypes.ndirs,'n',color,board) || dfs(x,y,pieceTypes.rdirs,'r',color,board) || dfs(x,y,pieceTypes.bdirs,'b',color,board) || dfs(x,y,arr,'p',color,board)
 }
 
 
@@ -107,6 +108,7 @@ function viewMoveHelper(state){
             }
         }
     }
+    //the king cannot kill a protected piece
     for(let i = 0 ;i<8;i++){
         for(let j = 0;j<8;j++){
             if(state.move_board[i][j] === '.'){
@@ -115,7 +117,6 @@ function viewMoveHelper(state){
                 board[i][j] = b;
                 board[x][y] = ' ';
                 if((piece === 'k' && isAttacked(i,j,color,board)) || (piece !== 'k' && isAttacked(kx,ky,color,board))){
-                    console.log(board,"what")
                     valid--;
                     state.move_board[i][j] = ' ';
                 }
