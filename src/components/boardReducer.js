@@ -1,5 +1,6 @@
 import { createSlice,current } from '@reduxjs/toolkit';
 import {produce} from 'immer';
+import viewMoveHelper from './viewMove';
 
 //"rnbqkbnr"
 const intial_majors = ['r','n','b','q','k','b','n','r']
@@ -39,7 +40,7 @@ function initialize(){
         moved.push(mt);
     }
     console.log(piecetemp,"order")
-    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 1}
+    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 'w',inCheck : {'b':0,'w':0}}
 }
 
 function isUpper(letter){
@@ -52,6 +53,10 @@ function pawnTake(x,y,x1,y1,color,colorD,state){
     if(y === y1)
         return state.piece_board[x1][y1] === ' '
     return color !== colorD && state.piece_board[x1][y1] !== ' ';
+}
+
+function isAttacked(x,y,color){
+    //can make n^2
 }
 
 const boardSlice =  createSlice({
@@ -72,6 +77,7 @@ const boardSlice =  createSlice({
             }
             if(invalid)
                 return;
+            state.turn = state.turn === 'w' ? 'b' : 'w';
             state.piece_board[xt][yt] = state.piece_board[x][y];
             state.piece_board[x][y] = ' ';
         },
@@ -80,49 +86,7 @@ const boardSlice =  createSlice({
             console.log(current(state));
         },
         viewMove: (state) => {
-            let x = state.coords[0][0];
-            let y = state.coords[0][1];
-            if(state.piece_board[x][y] === ' '){
-                state.coords = [];
-                return;
-            }
-            let piece = state.piece_board[x][y];
-            let color = isUpper(piece);
-            let arr = pieceTypes[(piece.toLowerCase() === 'p' ? color : "")+piece.toLowerCase() +"dirs"]
-            piece = piece.toLowerCase()
-            let depth = arr[0][0];
-            let valid = false;
-            for(let i = 1;i<arr.length;i++){
-                let a = x;
-                let b = y;
-                for(let j = 0;j<depth;j++){
-                    let x1 = a + arr[i][0];
-                    let y1 = b + arr[i][1];
-                    if(x1 < 0 || x1 >= 8 || y1 < 0 || y1 >= 8)
-                        break;
-                    let colorD = isUpper(state.piece_board[x1][y1]);
-                    a = x1;
-                    b = y1;
-                    pawnTake(x,y,x1,y1,color,colorD,state)
-                    if(state.piece_board[x1][y1] !== 'k' && (
-                        (colorD !== color && piece !== 'p') || 
-                        (piece === 'p' && pawnTake(x,y,x1,y1,color,colorD,state))
-                    )){
-                        state.move_board[x1][y1] = '.';
-                        valid = true;
-                    }
-                    if(state.piece_board[x1][y1] !== ' ')
-                        break;
-                }
-            }
-            if(state.moved[x][y] && piece === 'p'){
-                let add = arr[3][0]*2;
-                if(add + x >= 0 && x + add < 8){
-                    state.move_board[x+add][y] = state.move_board[x+add][y] == ' ' ? '.' : ' ';
-                }
-            }
-            if(!valid)
-                state.coords = [];
+            viewMoveHelper(state)
         }
     }
 })

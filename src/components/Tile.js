@@ -28,11 +28,11 @@ export default function Tile(props){
     return(<div style = {sqstyle} onClick = {handleClick}>
         {moves[x][y] != ' ' ? <img
             src={require('./pieces/gd.png')} // Adjust the image path as needed
-            style={{width : '100px', height : '100px', position: 'absolute', left: 0, top: 0, position : 'absolute',opacity: .25}}
+            style={{width : '100%', height : '100%', position: 'absolute', left: 0, top: 0, position : 'absolute',opacity: .25}}
         /> : null}
         {path ? (
             <img
-                style={{ position: 'absolute', left: 0, top: 0}}
+                style={{ position: 'absolute', left: 0, top: 0,width : '100%', height : '100%'}}
                 src={require(`${path}`)} // Adjust the image path as needed
             />
         ) : null}
