@@ -9,7 +9,6 @@ export default function Tile(props){
     let y = props.y;
     const pieces = useSelector((state) => state.piece_board);
     const moves = useSelector((state) => state.move_board);
-    let coords = useSelector((state) => state.coords);
     let turn = useSelector((state) => state.turn);
     let t = (pieces[x][y].toUpperCase() === pieces[x][y]) ? '_'  : "";
     let path = pieces[x][y] != ' ' ? './pieces\/' + pieces[x][y].toUpperCase() + t + '.png' : "";

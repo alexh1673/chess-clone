@@ -1,6 +1,7 @@
 import { createSlice,current } from '@reduxjs/toolkit';
 import {produce} from 'immer';
-import viewMoveHelper from './viewMove';
+import * as logic from './viewMove.js';
+import { dfs, viewMoveHelper, isAttacked , isUpper , findKing} from './viewMove.js';
 
 //"rnbqkbnr"
 const intial_majors = ['r','n','b','q','k','b','n','r']
@@ -40,23 +41,7 @@ function initialize(){
         moved.push(mt);
     }
     console.log(piecetemp,"order")
-    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 'w',inCheck : {'b':0,'w':0}}
-}
-
-function isUpper(letter){
-    if(letter === ' ')
-        return 'z';
-    return letter.toLowerCase() === letter ? 'b' : 'w';
-}
-
-function pawnTake(x,y,x1,y1,color,colorD,state){
-    if(y === y1)
-        return state.piece_board[x1][y1] === ' '
-    return color !== colorD && state.piece_board[x1][y1] !== ' ';
-}
-
-function isAttacked(x,y,color){
-    //can make n^2
+    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 'w',winner : "x"}
 }
 
 const boardSlice =  createSlice({
@@ -64,7 +49,6 @@ const boardSlice =  createSlice({
     initialState : initialize(),
     reducers : {
         movePiece : (state,action) => {
-            console.log(action.payload,"inside reducer")
             const x = action.payload[0][0];
             const y = action.payload[0][1];
             const xt = action.payload[1][0];
@@ -86,11 +70,35 @@ const boardSlice =  createSlice({
             console.log(current(state));
         },
         viewMove: (state) => {
-            viewMoveHelper(state)
+            viewMoveHelper(state,state.coords[0][0],state.coords[0][1])
+        },
+        checkMate: (state) => {
+            //0 = ongoing,1 = b win, 2 = w win, 3 = stalemate
+            let curr = 0;
+            for(let i = 0 ;i<8;i++){
+                for(let j = 0;j<8;j++){
+                    viewMoveHelper(state,i,j)
+                    for(let k = 0 ;k<8;k++){
+                        for(let l = 0;l<8;l++){
+                            curr += state.move_board[k][l] == '.';
+                            state.move_board[k][l] = ' ';
+                        }
+                    }
+                    if(curr)
+                        break;
+                }
+            }
+            if(curr == 0){
+                state.winner = state.turn === 'w' ? 'b' : 'w';
+                let k = findKing(state.turn,state.piece_board)
+                if(!isAttacked(k[0],k[1],state.winner,state.piece_board)){
+                    state.winner = 'stalemate'
+                }
+            }
         }
     }
 })
 
-export const {movePiece , addCoord , viewMove} = boardSlice.actions;
+export const {movePiece , addCoord , viewMove, checkMate} = boardSlice.actions;
 
 export default boardSlice.reducer

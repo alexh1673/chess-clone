@@ -1,8 +1,8 @@
-import React, { useEffect,useState} from 'react';
+import React, { useEffect} from 'react';
 import Tile from './tile.js';
-import { configureStore } from '@reduxjs/toolkit';
-import boardReducer, { movePiece , viewMove } from './boardReducer';
+import boardReducer, { checkMate, movePiece , viewMove } from './boardReducer';
 import { useDispatch , useSelector} from 'react-redux';
+import EndModal from './EndModal.js'
 
 export default function ChessBoard(){
     
@@ -12,8 +12,11 @@ export default function ChessBoard(){
     let coords = useSelector((state) => state.coords);
 
     useEffect(() => {
+        if(coords.length == 0){
+            console.log(pieces)
+            dispatch(checkMate());
+        }
         if(coords.length == 1){
-            console.log("viewing move")
             dispatch(viewMove());
         }
         if(coords.length == 2){
@@ -22,12 +25,15 @@ export default function ChessBoard(){
     },[coords]);
     
     return(
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 0fr))' , maxWidth: '800px'}}>
-                {pieces.map((array, x) => 
-                    array.map((char, y) => (
-                        <Tile x = {x} y = {y} />
-                    ))
-                )}
+        <div>
+            <EndModal/>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 0fr))' , maxWidth: '800px'}}>
+                    {pieces.map((array, x) => 
+                        array.map((char, y) => (
+                            <Tile x = {x} y = {y} />
+                        ))
+                    )}
+            </div>
         </div>
     )
 }

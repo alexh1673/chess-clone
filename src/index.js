@@ -13,7 +13,7 @@ root.render(
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', height: '100vh' }}>
         <div style={{ position: 'absolute', width: '850px', height: '850px', backgroundColor: 'brown', zIndex: -1, borderRadius: '10px'}}></div>
         <div style={{ fontSize: '28px', fontWeight: 'bold' }}>
-            Nate Higgers
+            Chess
         </div>
         <Provider store={store}>
             <ChessBoard />

@@ -36,7 +36,8 @@ function dfs(x,y,arr,piece,color,board){
             a = x1;
             b = y1;
             if(color !== colorD && 
-                (piece === board[x1][y1].toLowerCase() || (piece !== 'n' && board[x1][y1].toLowerCase() === 'q'))){
+                (piece === board[x1][y1].toLowerCase() || (piece !== 'n' && 
+                (board[x1][y1].toLowerCase() === 'q' || (j == 0 && board[x1][y1].toLowerCase() === 'k'))))){
                 return 1;
             }
             if(board[x1][y1] !== ' ')
@@ -52,15 +53,25 @@ function isAttacked(x,y,color,board){
     return dfs(x,y,pieceTypes.ndirs,'n',color,board) || dfs(x,y,pieceTypes.rdirs,'r',color,board) || dfs(x,y,pieceTypes.bdirs,'b',color,board) || dfs(x,y,arr,'p',color,board)
 }
 
+function findKing(color,board){
+    let kx,ky;
+    for(let i = 0 ;i<8;i++){
+        for(let j = 0;j<8;j++){
+            if(board[i][j].toLowerCase() === 'k' && isUpper(board[i][j]) === color){
+                kx = i;
+                ky = j;
+            }
+        }
+    }
+    return [kx,ky];
+}
 
-
-function viewMoveHelper(state){
-    let x = state.coords[0][0];
-    let y = state.coords[0][1];
+function viewMoveHelper(state,x,y){
     let piece = state.piece_board[x][y];
     let color = state.turn;
     if(piece === ' ' || (isUpper(piece) !== color)){
-        state.coords = [];
+        if(state.coords.length)
+            state.coords = [];
         return;
     }
     let arr = pieceTypes[(piece.toLowerCase() === 'p' ? color : "")+piece.toLowerCase() +"dirs"]
@@ -94,21 +105,12 @@ function viewMoveHelper(state){
     if(state.moved[x][y] && piece === 'p'){
         let add = arr[3][0]*2;
             if(add + x >= 0 && x + add < 8){
-                state.move_board[x+add][y] = state.move_board[x+add][y] === ' ' ? '.' : ' ';
+                state.move_board[x+add][y] = state.piece_board[x+add][y] === ' ' ? '.' : ' ';
             }
     }
-    //finding king valid move
+    //a move that would leave the king under attack is invalid*
     let board = state.piece_board;
-    let kx,ky;
-    for(let i = 0 ;i<8;i++){
-        for(let j = 0;j<8;j++){
-            if(board[i][j].toLowerCase() === 'k' && isUpper(board[i][j]) === color){
-                kx = i;
-                ky = j;
-            }
-        }
-    }
-    //the king cannot kill a protected piece
+    let k = findKing(state.turn,board);
     for(let i = 0 ;i<8;i++){
         for(let j = 0;j<8;j++){
             if(state.move_board[i][j] === '.'){
@@ -116,7 +118,7 @@ function viewMoveHelper(state){
                 let b = board[x][y];
                 board[i][j] = b;
                 board[x][y] = ' ';
-                if((piece === 'k' && isAttacked(i,j,color,board)) || (piece !== 'k' && isAttacked(kx,ky,color,board))){
+                if((piece === 'k' && isAttacked(i,j,color,board)) || (piece !== 'k' && isAttacked(k[0],k[1],color,board))){
                     valid--;
                     state.move_board[i][j] = ' ';
                 }
@@ -126,8 +128,10 @@ function viewMoveHelper(state){
         }
     }
     //no valid move
-    if(valid === 0)
+    state.moves = valid;
+    if(valid === 0 && state.coords.length)
         state.coords = [];
+
 }
 
-export default viewMoveHelper;
+export { dfs, viewMoveHelper, isAttacked, isUpper,findKing};
