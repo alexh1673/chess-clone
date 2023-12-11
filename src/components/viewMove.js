@@ -104,9 +104,10 @@ function viewMoveHelper(state,x,y){
     }
     if(state.moved[x][y] && piece === 'p'){
         let add = arr[3][0]*2;
-            if(add + x >= 0 && x + add < 8){
-                state.move_board[x+add][y] = state.piece_board[x+add][y] === ' ' ? '.' : ' ';
-            }
+        if(add + x >= 0 && x + add < 8){
+            valid++;
+            state.move_board[x+add][y] = state.piece_board[x+add][y] === ' ' ? '.' : ' ';
+        }
     }
     //a move that would leave the king under attack is invalid*
     let board = state.piece_board;

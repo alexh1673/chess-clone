@@ -12,11 +12,12 @@ export default function Tile(props){
     let turn = useSelector((state) => state.turn);
     let t = (pieces[x][y].toUpperCase() === pieces[x][y]) ? '_'  : "";
     let path = pieces[x][y] != ' ' ? './pieces\/' + pieces[x][y].toUpperCase() + t + '.png' : "";
+    let selected = props.coords.length >= 1 && props.coords[0][0] == x && props.coords[0][1] == y;
 
     const sqstyle = {
         width: '100px', // You can change this value to set the size of the square
         height: '100px', // Should be the same as the width to make it a square
-        backgroundColor: (x%2 + y)%2 ? 'white' : '#0a571f', // You can change the background color
+        backgroundColor: (selected ? 'yellow' : ((x%2 + y)%2 ? 'white' : '#0a571f')), // You can change the background color
         position: 'relative'
     };
 

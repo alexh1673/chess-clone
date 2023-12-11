@@ -1,7 +1,5 @@
 import { createSlice,current } from '@reduxjs/toolkit';
-import {produce} from 'immer';
-import * as logic from './viewMove.js';
-import { dfs, viewMoveHelper, isAttacked , isUpper , findKing} from './viewMove.js';
+import { viewMoveHelper, isAttacked , isUpper , findKing} from './viewMove.js';
 
 //"rnbqkbnr"
 const intial_majors = ['r','n','b','q','k','b','n','r']
@@ -29,8 +27,11 @@ function initialize(){
             order = Array.from(intial_pawns);
             mt = new Array(8).fill(1);
         }
-        if(i === 0 || i === 7)
+        if(i === 0 || i === 7){
             order = Array.from(intial_majors);
+            mt[0] = 1;
+            mt[7] = 1;
+        }
         if(i === 7 || i === 6){
             for(let j = 0;j<8;j++){
                 order[j] = order[j].toUpperCase();
@@ -67,13 +68,12 @@ const boardSlice =  createSlice({
         },
         addCoord : (state,action) => {
             state.coords = [...state.coords,[action.payload.x,action.payload.y]]
-            console.log(current(state));
         },
         viewMove: (state) => {
             viewMoveHelper(state,state.coords[0][0],state.coords[0][1])
         },
         checkMate: (state) => {
-            //0 = ongoing,1 = b win, 2 = w win, 3 = stalemate
+            //issue lies here
             let curr = 0;
             for(let i = 0 ;i<8;i++){
                 for(let j = 0;j<8;j++){
