@@ -31,6 +31,7 @@ function initialize(){
             order = Array.from(intial_majors);
             mt[0] = 1;
             mt[7] = 1;
+            mt[4] = 1;
         }
         if(i === 7 || i === 6){
             for(let j = 0;j<8;j++){
@@ -62,9 +63,27 @@ const boardSlice =  createSlice({
             }
             if(invalid)
                 return;
+            state.moved[x][y] = 0;
+            state.moved[xt][yt] = 0;
+            console.log((state.piece_board[x][y] === 'k' || state.piece_board[x][y] === 'K'))
+            if((state.piece_board[x][y] === 'k' || state.piece_board[x][y] === 'K')  && Math.abs(y-yt) === 2){
+                state.piece_board[x][4] = ' ';
+                if(yt < y){
+                    state.piece_board[x][0] = ' ';
+                    state.piece_board[x][3] = x == 0 ? 'r' : 'R';
+                    state.piece_board[x][2] = x == 0 ? 'k' : 'K';
+                }
+                else{
+                    state.piece_board[x][7] = ' ';
+                    state.piece_board[x][6] = x == 0 ? 'k' : 'K';
+                    state.piece_board[x][5] = x == 0 ? 'r' : 'R';
+                }
+            }
+            else{
+                state.piece_board[xt][yt] = state.piece_board[x][y];
+                state.piece_board[x][y] = ' ';
+            }
             state.turn = state.turn === 'w' ? 'b' : 'w';
-            state.piece_board[xt][yt] = state.piece_board[x][y];
-            state.piece_board[x][y] = ' ';
         },
         addCoord : (state,action) => {
             state.coords = [...state.coords,[action.payload.x,action.payload.y]]
@@ -73,7 +92,6 @@ const boardSlice =  createSlice({
             viewMoveHelper(state,state.coords[0][0],state.coords[0][1])
         },
         checkMate: (state) => {
-            //issue lies here
             let curr = 0;
             for(let i = 0 ;i<8;i++){
                 for(let j = 0;j<8;j++){

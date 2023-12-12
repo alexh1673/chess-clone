@@ -50,6 +50,7 @@ function dfs(x,y,arr,piece,color,board){
 function isAttacked(x,y,color,board){
     //check if a coord of a certain color is attacked on a given board
     let arr = pieceTypes[color + 'p' + "dirs"];
+    //dfs(x,y,pieceTypes.ndirs,'n',color,board) || dfs(x,y,pieceTypes.rdirs,'r',color,board) || dfs(x,y,pieceTypes.bdirs,'b',color,board) || dfs(x,y,arr,'p',color,board)
     return dfs(x,y,pieceTypes.ndirs,'n',color,board) || dfs(x,y,pieceTypes.rdirs,'r',color,board) || dfs(x,y,pieceTypes.bdirs,'b',color,board) || dfs(x,y,arr,'p',color,board)
 }
 
@@ -64,6 +65,28 @@ function findKing(color,board){
         }
     }
     return [kx,ky];
+}
+
+function castle(color,state){
+    let x = color === 'w' ? 7 : 0;
+    let res = 0;
+    //king not ons tarting sq or in check
+    if(!state.moved[x][4] || isAttacked(x,4,color,state.piece_board)){
+        console.log("castling here ",res)
+        return res;
+    }
+    console.log("castling",x,res,current(state),!isAttacked(x,3,color,state.piece_board))
+    if(!isAttacked(x,3,color,state.piece_board) && !isAttacked(x,2,color,state.piece_board) && state.moved[x][0] &&
+    (state.piece_board[x][3] === state.piece_board[x][2] && state.piece_board[x][2] === state.piece_board[x][1])){
+        res++;
+        state.move_board[x][2] = '.';
+    }
+    if(!isAttacked(x,5,color,state.piece_board) && !isAttacked(x,6,color,state.piece_board) && state.moved[x][7] &&
+    (state.piece_board[x][5] === state.piece_board[x][6])){
+        res++;
+        state.move_board[x][6] = '.';
+    }
+    return res;
 }
 
 function viewMoveHelper(state,x,y){
@@ -103,10 +126,11 @@ function viewMoveHelper(state,x,y){
         }
     }
     if(state.moved[x][y] && piece === 'p'){
-        let add = arr[3][0]*2;
-        if(add + x >= 0 && x + add < 8){
+        let add = arr[3][0];
+        if(add*2 + x >= 0 && x + add*2 < 8){
             valid++;
-            state.move_board[x+add][y] = state.piece_board[x+add][y] === ' ' ? '.' : ' ';
+            state.move_board[x+add*2][y] = 
+            (state.piece_board[x+add][y] === state.piece_board[x+add*2][y] && state.piece_board[x+add][y] === ' ') ? '.' : ' ';
         }
     }
     //a move that would leave the king under attack is invalid*
@@ -128,6 +152,8 @@ function viewMoveHelper(state,x,y){
             }
         }
     }
+    if(piece === 'k')
+        valid += castle(color,state);
     //no valid move
     state.moves = valid;
     if(valid === 0 && state.coords.length)
