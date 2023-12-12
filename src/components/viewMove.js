@@ -72,10 +72,8 @@ function castle(color,state){
     let res = 0;
     //king not ons tarting sq or in check
     if(!state.moved[x][4] || isAttacked(x,4,color,state.piece_board)){
-        console.log("castling here ",res)
         return res;
     }
-    console.log("castling",x,res,current(state),!isAttacked(x,3,color,state.piece_board))
     if(!isAttacked(x,3,color,state.piece_board) && !isAttacked(x,2,color,state.piece_board) && state.moved[x][0] &&
     (state.piece_board[x][3] === state.piece_board[x][2] && state.piece_board[x][2] === state.piece_board[x][1])){
         res++;

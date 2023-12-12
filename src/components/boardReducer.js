@@ -1,20 +1,10 @@
 import { createSlice,current } from '@reduxjs/toolkit';
-import { viewMoveHelper, isAttacked , isUpper , findKing} from './viewMove.js';
+import { viewMoveHelper, isAttacked , findKing} from './viewMove.js';
 
 //"rnbqkbnr"
 const intial_majors = ['r','n','b','q','k','b','n','r']
 const intial_pawns = ['p','p','p','p','p','p','p','p']
 const blank = [' ',' ',' ',' ',' ',' ',' ',' ']
-
-const pieceTypes = {
-    wpdirs: [[1],[-1,-1],[-1,1],[-1,0]],
-    bpdirs: [[1],[1,-1],[1,1],[1,0]],
-    rdirs: [[8],[1,0],[0,1],[-1,0],[0,-1]], 
-    ndirs: [[1],[2,1],[2,-1],[1,2],[1,-2],[-2,1],[-2,-1],[-1,2],[-1,-2]],
-    bdirs: [[8],[1,-1],[1,1],[-1,-1],[-1,1]],
-    qdirs: [[8],[1,0],[0,1],[-1,0],[0,-1],[1,-1],[1,1],[-1,-1],[-1,1]],
-    kdirs: [[1],[1,0],[0,1],[-1,0],[0,-1],[1,-1],[1,1],[-1,-1],[-1,1]]
-};
 
 function initialize(){
     let piecetemp = [];
@@ -43,7 +33,7 @@ function initialize(){
         moved.push(mt);
     }
     console.log(piecetemp,"order")
-    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 'w',winner : "x"}
+    return {piece_board : piecetemp, move_board : movetemp,coords : [], moved : moved, turn : 'w',winner : "x",promoting : ['x','x','x','x','x']}
 }
 
 const boardSlice =  createSlice({
@@ -65,18 +55,21 @@ const boardSlice =  createSlice({
                 return;
             state.moved[x][y] = 0;
             state.moved[xt][yt] = 0;
-            console.log((state.piece_board[x][y] === 'k' || state.piece_board[x][y] === 'K'))
-            if((state.piece_board[x][y] === 'k' || state.piece_board[x][y] === 'K')  && Math.abs(y-yt) === 2){
+            if((state.piece_board[x][y] === 'p' || state.piece_board[x][y] === 'P') && (xt == 7 || xt == 0)){
+                state.promoting = [x,y,xt,yt,state.turn];
+                return;
+            }
+            else if((state.piece_board[x][y] === 'k' || state.piece_board[x][y] === 'K')  && Math.abs(y-yt) === 2){
                 state.piece_board[x][4] = ' ';
                 if(yt < y){
                     state.piece_board[x][0] = ' ';
-                    state.piece_board[x][3] = x == 0 ? 'r' : 'R';
-                    state.piece_board[x][2] = x == 0 ? 'k' : 'K';
+                    state.piece_board[x][3] = x === 0 ? 'r' : 'R';
+                    state.piece_board[x][2] = x === 0 ? 'k' : 'K';
                 }
                 else{
                     state.piece_board[x][7] = ' ';
-                    state.piece_board[x][6] = x == 0 ? 'k' : 'K';
-                    state.piece_board[x][5] = x == 0 ? 'r' : 'R';
+                    state.piece_board[x][6] = x === 0 ? 'k' : 'K';
+                    state.piece_board[x][5] = x === 0 ? 'r' : 'R';
                 }
             }
             else{
@@ -98,7 +91,7 @@ const boardSlice =  createSlice({
                     viewMoveHelper(state,i,j)
                     for(let k = 0 ;k<8;k++){
                         for(let l = 0;l<8;l++){
-                            curr += state.move_board[k][l] == '.';
+                            curr += state.move_board[k][l] === '.';
                             state.move_board[k][l] = ' ';
                         }
                     }
@@ -106,17 +99,26 @@ const boardSlice =  createSlice({
                         break;
                 }
             }
-            if(curr == 0){
+            if(curr === 0){
                 state.winner = state.turn === 'w' ? 'b' : 'w';
                 let k = findKing(state.turn,state.piece_board)
                 if(!isAttacked(k[0],k[1],state.winner,state.piece_board)){
                     state.winner = 'stalemate'
                 }
             }
+        },
+        promote: (state,action) => {
+            console.log(action)
+            state.moved[state.promoting[0]][state.promoting[1]] = 0;
+            state.moved[state.promoting[2]][state.promoting[3]] = 0;
+            state.piece_board[state.promoting[2]][state.promoting[3]] = action.payload;
+            state.piece_board[state.promoting[0]][state.promoting[1]] = ' ';
+            state.promoting = ['x','x','x','x','x']
+            state.turn = state.turn === 'w' ? 'b' : 'w';
         }
     }
 })
 
-export const {movePiece , addCoord , viewMove, checkMate} = boardSlice.actions;
+export const {movePiece , addCoord , viewMove, checkMate, promote} = boardSlice.actions;
 
 export default boardSlice.reducer

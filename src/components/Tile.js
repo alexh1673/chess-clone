@@ -1,6 +1,7 @@
 import React, {useEffect,useState} from 'react';
 import { addCoord, movePiece } from './boardReducer';
 import { useDispatch ,useSelector} from 'react-redux';
+import { Button } from '@mui/material';
 
 export default function Tile(props){
 
@@ -9,7 +10,6 @@ export default function Tile(props){
     let y = props.y;
     const pieces = useSelector((state) => state.piece_board);
     const moves = useSelector((state) => state.move_board);
-    let turn = useSelector((state) => state.turn);
     let t = (pieces[x][y].toUpperCase() === pieces[x][y]) ? '_'  : "";
     let path = pieces[x][y] != ' ' ? './pieces\/' + pieces[x][y].toUpperCase() + t + '.png' : "";
     let selected = props.coords.length >= 1 && props.coords[0][0] == x && props.coords[0][1] == y;
@@ -25,7 +25,8 @@ export default function Tile(props){
         dispatch(addCoord({x,y}));
     };
 
-    return(<div style = {sqstyle} onClick = {handleClick}>
+    return(
+    <Button disableRipple variant="contained" style = {sqstyle} onClick = {handleClick}>
         {moves[x][y] != ' ' ? <img
             src={require('./pieces/gd.png')} // Adjust the image path as needed
             style={{width : '100%', height : '100%', position: 'absolute', left: 0, top: 0, position : 'absolute',opacity: .25}}
@@ -36,5 +37,5 @@ export default function Tile(props){
                 src={require(`${path}`)} // Adjust the image path as needed
             />
         ) : null}
-    </div>)
+    </Button>)
 }

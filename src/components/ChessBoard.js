@@ -1,8 +1,9 @@
 import React, { useEffect} from 'react';
 import Tile from './tile.js';
-import boardReducer, { checkMate, movePiece , viewMove } from './boardReducer';
+import { checkMate, movePiece , viewMove } from './boardReducer';
 import { useDispatch , useSelector} from 'react-redux';
 import EndModal from './EndModal.js'
+import PromoteModal from './PromoteModal.js'
 
 export default function ChessBoard(){
     
@@ -11,13 +12,13 @@ export default function ChessBoard(){
     let coords = useSelector((state) => state.coords);
 
     useEffect(() => {
-        if(coords.length == 0){
+        if(coords.length === 0){
             dispatch(checkMate());
         }
-        if(coords.length == 1){
+        if(coords.length === 1){
             dispatch(viewMove());
         }
-        if(coords.length == 2){
+        if(coords.length === 2){
             dispatch(movePiece(coords));
         }
     },[coords]);
@@ -25,6 +26,7 @@ export default function ChessBoard(){
     return(
         <div>
             <EndModal/>
+            <PromoteModal/>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 0fr))' , maxWidth: '800px'}}>
                     {pieces.map((array, x) => 
                         array.map((char, y) => (
